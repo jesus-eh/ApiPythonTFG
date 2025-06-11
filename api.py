@@ -246,7 +246,7 @@ def registrar_asistencia():
 
     # Verificar si ya está registrado en ese evento
     cursor.execute("""
-        SELECT * FROM evento_asistencia 
+        SELECT 1 FROM evento_asistencia 
         WHERE evento_id = %s AND hermano_id = %s
     """, (evento_id, hermano_id))
     if cursor.fetchone():
@@ -255,7 +255,7 @@ def registrar_asistencia():
 
     # Verificar si hay plazas disponibles
     cursor.execute("""
-        SELECT plazas_disponibles FROM eventos WHERE id = %s
+        SELECT Plazas FROM eventos WHERE id = %s
     """, (evento_id,))
     evento = cursor.fetchone()
     if not evento:
