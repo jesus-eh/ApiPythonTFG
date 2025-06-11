@@ -253,20 +253,6 @@ def registrar_asistencia():
         cursor.close()
         return jsonify({"error": "Asistencia ya registrada para este evento"}), 409
 
-    # Verificar si hay plazas disponibles
-    cursor.execute("""
-        SELECT Plazas FROM eventos WHERE id = %s
-    """, (evento_id,))
-    evento = cursor.fetchone()
-    if not evento:
-        cursor.close()
-        return jsonify({"error": "Evento no encontrado"}), 404
-
-    plazas_disponibles = evento[0]
-    if plazas_disponibles <= 0:
-        cursor.close()
-        return jsonify({"error": "No hay plazas disponibles"}), 400
-
     # Generar contenido para el QR
     qr_text = f"{evento_id}_{hermano_id}_{datetime.utcnow().isoformat()}"
 
