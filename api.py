@@ -246,7 +246,7 @@ def registrar_asistencia():
 
     # Verificar si ya está registrado en ese evento
     cursor.execute("""
-        SELECT 1 FROM evento_asistencia 
+        SELECT * FROM evento_asistencia 
         WHERE evento_id = %s AND hermano_id = %s
     """, (evento_id, hermano_id))
     if cursor.fetchone():
