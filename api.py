@@ -268,11 +268,6 @@ def registrar_asistencia():
         VALUES (%s, %s, NOW(), %s)
     """, (evento_id, hermano_id, qr_text))
 
-    # Actualizar plazas disponibles
-    cursor.execute("""
-        UPDATE eventos SET Plazas = Plazas - 1 WHERE id = %s
-    """, (evento_id,))
-
     conn.commit()
     cursor.close()
 
