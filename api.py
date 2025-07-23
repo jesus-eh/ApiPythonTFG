@@ -17,10 +17,10 @@ app = Flask(__name__)
 
 # Conexión a tu base de datos Supabase
 conn = psycopg2.connect(
-    user="postgres.lvorolekxlsnogetekwy",
-    password="Marta@023",
-    host="aws-0-us-east-2.pooler.supabase.com",
-    port="6543",
+    user="****************",
+    password="********",
+    host="****************",
+    port="****",
     dbname="postgres"
 )
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
