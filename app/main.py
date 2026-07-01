@@ -1,93 +1,21 @@
 from app.database import get_connection
 from flask import Flask, jsonify
 from flask import request
-import hashlib
 import qrcode
 import io
 import base64
 from datetime import datetime
+from app.routes.login import login_bp
+from app.routes.hermanos import hermanos_bp
+
 
 app = Flask(__name__)
 conn = get_connection()
 
-@app.route('/login', methods=['POST'])
-def login():
-    try:
-        data = request.get_json()
-        nif = data.get("nif")
-        password = data.get("password")
-        conn = get_connection()
-
-        print(f"Datos recibidos: NIF={nif}, Password={password}")
-        print("-------------------------------")
-
-        if not nif or not password:
-            return jsonify({"error": "NIF y contraseña son obligatorios"}), 400
-
-        cur = conn.cursor()
-        cur.execute("SELECT pass FROM authentication WHERE nif = %s", (nif,))
-        user = cur.fetchone()
-        cur.close()
-
-        if not user:
-            return jsonify({"error": "Usuario no encontrado"}), 404
-
-        hashed_pass = user[0].strip()
-
-        # Calcular el hash MD5 de la contraseña recibida
-        password_md5 = hashlib.md5(password.encode()).hexdigest()
-
-        print(f"Contraseña recibida MD5: {password_md5}")
-        print(f"Contraseña en BBDD     : {hashed_pass}")
-
-        if password_md5 == hashed_pass.strip():
-            print(f"Login exitoso para NIF: {nif}")
-            return jsonify({"mensaje": "Login correcto", "NIF": nif})
-        else:
-            print("Contraseña incorrecta")
-            return jsonify({"error": "Contraseña incorrecta"}), 401
-
-    except Exception as e:
-        conn.rollback()
-        print(f"Error en el login: {str(e)}")
-        return jsonify({"error": str(e)}), 500
+app.register_blueprint(login_bp)
+app.register_blueprint(hermanos_bp)
 
 
-
-# Endpoint para obtener los datos del hermano
-@app.route('/hermano/<nif>', methods=['GET'])
-def get_hermano(nif):
-    try:
-        print("Nif del usuario: ",nif)
-        conn = get_connection()
-        cur = conn.cursor()
-        cur.execute("""
-            SELECT 
-                numero_hermano, numero_real, nombre, apellidos, fecha_alta, 
-                fecha_nacimiento, nif, domicilio, localidad, codigo_postal, 
-                provincia, telefono, movil, email, forma_pago, 
-                cuenta_bancaria, periodicidad
-            FROM hermanos
-            WHERE nif = %s
-        """, (nif,))
-        row = cur.fetchone()
-        cur.close()
-
-        if row:
-            keys = [
-                "numero_hermano", "numero_real", "nombre", "apellidos", "fecha_alta",
-                "fecha_nacimiento", "nif", "domicilio", "localidad", "codigo_postal",
-                "provincia", "telefono", "movil", "email", "forma_pago",
-                "cuenta_bancaria", "periodicidad"
-            ]
-            hermano = dict(zip(keys, row))
-            return jsonify(hermano), 200
-        else:
-            return jsonify({"error": "Hermano no encontrado"}), 404
-
-    except Exception as e:
-        conn.rollback()
-        return jsonify({"error": str(e)}), 500
 
 # Endpoint para obtener los datos de los puesto del hermano
 @app.route('/puestos/<nif>', methods=['GET'])
